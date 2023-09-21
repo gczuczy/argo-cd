@@ -109,6 +109,8 @@ type RepoServerInitConstants struct {
 	AllowOutOfBoundsSymlinks                     bool
 	StreamedManifestMaxExtractedSize             int64
 	StreamedManifestMaxTarSize                   int64
+	HelmManifestMaxExtractedSize                 int64
+	DisableHelmManifestMaxExtractedSize          bool
 }
 
 // NewService returns a new instance of the Manifest service
@@ -348,7 +350,7 @@ func (s *Service) runRepoOperation(
 		if source.Helm != nil {
 			helmPassCredentials = source.Helm.PassCredentials
 		}
-		chartPath, closer, err := helmClient.ExtractChart(source.Chart, revision, helmPassCredentials)
+		chartPath, closer, err := helmClient.ExtractChart(source.Chart, revision, helmPassCredentials, s.initConstants.HelmManifestMaxExtractedSize, s.initConstants.DisableHelmManifestMaxExtractedSize)
 		if err != nil {
 			return err
 		}
@@ -402,9 +404,15 @@ func (s *Service) runRepoOperation(
 			}
 		}
 
-		commitSHA, err := gitClient.CommitSHA()
-		if err != nil {
-			return err
+		var commitSHA string
+		if hasMultipleSources {
+			commitSHA = revision
+		} else {
+			commit, err := gitClient.CommitSHA()
+			if err != nil {
+				return fmt.Errorf("failed to get commit SHA: %w", err)
+			}
+			commitSHA = commit
 		}
 
 		// double-check locking
@@ -2615,7 +2623,7 @@ func (s *Service) GetRevisionChartDetails(ctx context.Context, q *apiclient.Repo
 	if err != nil {
 		return nil, fmt.Errorf("helm client error: %v", err)
 	}
-	chartPath, closer, err := helmClient.ExtractChart(q.Name, revision, false)
+	chartPath, closer, err := helmClient.ExtractChart(q.Name, revision, false, s.initConstants.HelmManifestMaxExtractedSize, s.initConstants.DisableHelmManifestMaxExtractedSize)
 	if err != nil {
 		return nil, fmt.Errorf("error extracting chart: %v", err)
 	}

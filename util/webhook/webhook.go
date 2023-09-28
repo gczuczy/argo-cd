@@ -290,14 +290,22 @@ func (a *ArgoCDWebhookHandler) HandleEvent(payload interface{}) {
 		}
 		for _, app := range filteredApps {
 
+			log.Warnf("Evaluating app %s refresh", app.Name)
+
+			refreshtype := v1alpha1.RefreshTypeNormal
+			if len(app.Spec.GetSources()) > 1 {
+				refreshtype = v1alpha1.RefreshTypeHard
+			}
 			for _, source := range app.Spec.GetSources() {
 				if sourceRevisionHasChanged(source, revision, touchedHead) && sourceUsesURL(source, webURL, repoRegexp) {
 					if appFilesHaveChanged(&app, changedFiles) {
 						namespacedAppInterface := a.appClientset.ArgoprojV1alpha1().Applications(app.ObjectMeta.Namespace)
-						_, err = argo.RefreshApp(namespacedAppInterface, app.ObjectMeta.Name, v1alpha1.RefreshTypeNormal)
+						_, err = argo.RefreshApp(namespacedAppInterface, app.ObjectMeta.Name, refreshtype)
 						if err != nil {
 							log.Warnf("Failed to refresh app '%s' for controller reprocessing: %v", app.ObjectMeta.Name, err)
 							continue
+						} else {
+							log.Warnf("Refreshed app '%s'", app.Name)
 						}
 						// No need to refresh multiple times if multiple sources match.
 						break

@@ -367,7 +367,7 @@ func skipResourceUpdate(oldInfo, newInfo *ResourceInfo) bool {
 		"oldapp": oldInfo.AppName,
 		"newapp": newInfo.AppName,
 	}).Debug("CZGDEBUG skipResourceUpdate")
-	return isSameHealthStatus && isSameManifest
+	return isSameHealthStatus && isSameManifest || newInfo.AppName == ""
 }
 
 // shouldHashManifest validates if the API resource needs to be hashed.
@@ -551,7 +551,7 @@ func (c *liveStateCache) getCluster(server string) (clustercache.ClusterCache, e
 			"skipresourceUpdate": skipResourceUpdate(resInfo(oldRes), resInfo(newRes)),
 			"Kind": ref.Kind,
 			"Name": ref.Name,
-		}).Debug("CZGDEBUG")
+		}).Debug("CZGDEBUG OnResourceUpdated")
 		if cacheSettings.ignoreResourceUpdatesEnabled && oldRes != nil && newRes != nil && skipResourceUpdate(resInfo(oldRes), resInfo(newRes)) {
 			// Additional check for debug level so we don't need to evaluate the
 			// format string in case of non-debug scenarios

@@ -518,6 +518,12 @@ func (c *liveStateCache) getCluster(server string) (clustercache.ClusterCache, e
 		cacheSettings := c.cacheSettings
 		c.lock.RUnlock()
 
+		log.WithFields(log.Fields{
+			"ignoreResUpdateEnabled": cacheSettings.ignoreResourceUpdatesEnabled,
+			"skipresourceUpdate": skipResourceUpdate(resInfo(oldRes), resInfo(newRes)),
+			"Kind": ref.Kind,
+			"Name": ref.Name,
+		}).Debug("CZGDEBUG")
 		if cacheSettings.ignoreResourceUpdatesEnabled && oldRes != nil && newRes != nil && skipResourceUpdate(resInfo(oldRes), resInfo(newRes)) {
 			// Additional check for debug level so we don't need to evaluate the
 			// format string in case of non-debug scenarios

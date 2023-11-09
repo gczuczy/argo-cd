@@ -409,20 +409,6 @@ func (ctrl *ApplicationController) handleObjectUpdated(managedByApp map[string]b
 			namespace = "(cluster-scoped)"
 		}
 
-		if !isManagedResource {
-			log.WithFields(log.Fields{
-				"application":  appKey,
-				"level":        level,
-				"namespace":    namespace,
-				"name":         ref.Name,
-				"api-version":  ref.APIVersion,
-				"kind":         ref.Kind,
-				"server":       app.Spec.Destination.Server,
-				"cluster-name": app.Spec.Destination.Name,
-			}).Debug("Skipping app refresh caused by object update due to resource not being Managed")
-			continue
-		}
-
 		log.WithFields(log.Fields{
 			"application":  appKey,
 			"level":        level,

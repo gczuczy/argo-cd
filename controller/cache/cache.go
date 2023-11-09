@@ -361,6 +361,12 @@ func skipResourceUpdate(oldInfo, newInfo *ResourceInfo) bool {
 	}
 	isSameHealthStatus := (oldInfo.Health == nil && newInfo.Health == nil) || oldInfo.Health != nil && newInfo.Health != nil && oldInfo.Health.Status == newInfo.Health.Status
 	isSameManifest := oldInfo.manifestHash != "" && newInfo.manifestHash != "" && oldInfo.manifestHash == newInfo.manifestHash
+	log.WithFields(log.Fields{
+		"isSameHealthStatus": isSameHealthStatus,
+		"isSameManifest": isSameManifest,
+		"oldapp": oldInfo.AppName,
+		"newapp": newInfo.AppName,
+	}).Debug("CZGDEBUG skipResourceUpdate")
 	return isSameHealthStatus && isSameManifest
 }
 

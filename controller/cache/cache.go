@@ -287,7 +287,14 @@ func isRootAppNode(r *clustercache.Resource) bool {
 }
 
 func getApp(r *clustercache.Resource, ns map[kube.ResourceKey]*clustercache.Resource) string {
-	return getAppRecursive(r, ns, map[kube.ResourceKey]bool{})
+	retval := getAppRecursive(r, ns, map[kube.ResourceKey]bool{})
+	log.WithFields(log.Fields{
+		"kind": r.Ref.Kind,
+		"namespace": r.Ref.Namespace,
+		"apiVersion": r.Ref.APIVersion,
+		"retval": retval,
+	}).Debug("CZGDEBUG getApp")
+	return retval
 }
 
 func ownerRefGV(ownerRef metav1.OwnerReference) schema.GroupVersion {
@@ -307,6 +314,12 @@ func getAppRecursive(r *clustercache.Resource, ns map[kube.ResourceKey]*clusterc
 	}
 
 	if resInfo(r).AppName != "" {
+		log.WithFields(log.Fields{
+			"kind": r.Ref.Kind,
+			"namespace": r.Ref.Namespace,
+			"apiVersion": r.Ref.APIVersion,
+			"appname": resInfo(r).AppName,
+		}).Debug("CZGDEBUG getAppRecursive - Appname found (resInfo)")
 		return resInfo(r).AppName
 	}
 	for _, ownerRef := range r.OwnerRefs {
@@ -314,6 +327,15 @@ func getAppRecursive(r *clustercache.Resource, ns map[kube.ResourceKey]*clusterc
 		if parent, ok := ns[kube.NewResourceKey(gv.Group, ownerRef.Kind, r.Ref.Namespace, ownerRef.Name)]; ok {
 			app := getAppRecursive(parent, ns, visited)
 			if app != "" {
+				log.WithFields(log.Fields{
+					"kind": r.Ref.Kind,
+					"namespace": r.Ref.Namespace,
+					"apiVersion": r.Ref.APIVersion,
+					"appname": app,
+					"parent/kind": parent.Ref.Kind,
+					"parent/namespace": parent.Ref.Namespace,
+					"parent/apiVersion": parent.Ref.APIVersion,
+				}).Debug("CZGDEBUG getAppRecursive - Appname found (NewResourceKey)")
 				return app
 			}
 		}

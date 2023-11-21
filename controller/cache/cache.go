@@ -367,7 +367,8 @@ func skipResourceUpdate(oldInfo, newInfo *ResourceInfo) bool {
 		"oldapp": oldInfo.AppName,
 		"newapp": newInfo.AppName,
 	}).Debug("CZGDEBUG skipResourceUpdate")
-	return isSameHealthStatus && isSameManifest || newInfo.AppName == ""
+	//return isSameHealthStatus && isSameManifest || newInfo.AppName == ""
+	return isSameHealthStatus && isSameManifest
 }
 
 // shouldHashManifest validates if the API resource needs to be hashed.

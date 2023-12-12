@@ -15855,6 +15855,8 @@ spec:
                 - metadata
                 - spec
                 type: object
+              templatePatch:
+                type: string
             required:
             - generators
             - template

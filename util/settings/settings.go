@@ -879,6 +879,11 @@ func (mgr *SettingsManager) GetResourceOverrides() (map[string]v1alpha1.Resource
 	resourceOverrides := map[string]v1alpha1.ResourceOverride{}
 	if value, ok := argoCDCM.Data[resourceCustomizationsKey]; ok && value != "" {
 		err := yaml.Unmarshal([]byte(value), &resourceOverrides)
+		log.WithFields(log.Fields{
+			"value": value,
+			"ok": ok,
+			"err": err,
+		}).Debug("CZGDEBUG SettingsManager::GetResourceOverrides")
 		if err != nil {
 			return nil, err
 		}

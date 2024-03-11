@@ -425,6 +425,7 @@ func (ctrl *ApplicationController) handleObjectUpdated(managedByApp map[string]b
 		if ref.Namespace == "" {
 			namespace = "(cluster-scoped)"
 		}
+
 		log.WithFields(log.Fields{
 			"application":  appKey,
 			"level":        level,
